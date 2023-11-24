@@ -1,0 +1,6 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+diffusers==0.20.2
+torchvision==0.15.2
+transformers==4.33.0
+accelerate
+Pillow
