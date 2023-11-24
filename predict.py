@@ -45,7 +45,8 @@ class Predictor(BasePredictor):
             image = self.pipeline(prompt=prompt,
                                   image=init_image,
                                   mask_image=mask_image,
-                                  generator=generator).images[0]
+                                  generator=generator,
+                                  safety_checker=False).images[0]
             image.save(out_path)
             return out_path
         except Exception as ex:
