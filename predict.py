@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         # self.model = torch.load("./weights.pth")
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
-            "runwayml/stable-diffusion-inpainting",
+            "./stable-diffusion-inpainting",
             torch_dtype=torch.float16,
             variant="fp16"
         ).to("cuda")
