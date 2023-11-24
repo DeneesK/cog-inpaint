@@ -19,7 +19,8 @@ class Predictor(BasePredictor):
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
             "./stable-diffusion-inpainting",
             torch_dtype=torch.float16,
-            variant="fp16"
+            variant="fp16",
+            safety_checker=False
         ).to("cuda")
         self.pipeline.enable_model_cpu_offload()
 
@@ -45,8 +46,7 @@ class Predictor(BasePredictor):
             image = self.pipeline(prompt=prompt,
                                   image=init_image,
                                   mask_image=mask_image,
-                                  generator=generator,
-                                  safety_checker=False).images[0]
+                                  generator=generator).images[0]
             image.save(out_path)
             return out_path
         except Exception as ex:
