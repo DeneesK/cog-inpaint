@@ -3,9 +3,8 @@
 import sys
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
-import random  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import AutoPipelineForInpainting, LCMScheduler  # noqa
+from diffusers import AutoPipelineForInpainting  # noqa
 import torch  # noqa
 
 from PIL import Image  # noqa
