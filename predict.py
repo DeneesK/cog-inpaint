@@ -16,7 +16,7 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make
         running multiple predictions efficient"""
-    pipeline = AutoPipelineForInpainting.from_pretrained(
+        self.pipeline = AutoPipelineForInpainting.from_pretrained(
             "./urpm-inpaint",
             torch_dtype=torch.float16,
             variant="fp16",
