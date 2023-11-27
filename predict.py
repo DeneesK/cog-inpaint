@@ -16,12 +16,15 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make
         running multiple predictions efficient"""
+        print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
             "./urpm-inpaint",
             torch_dtype=torch.float16,
             variant="fp16",
             requires_safety_checker=False,
         ).to("cuda")
+        self.pipeline.enable_model_cpu_offload()
+        print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
         self,
