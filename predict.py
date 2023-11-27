@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionPipeline  # noqa
+from diffusers import AutoPipelineForInpainting  # noqa
 import torch  # noqa
 
 from PIL import Image  # noqa
@@ -16,12 +16,11 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make
         running multiple predictions efficient"""
-    pipeline = StableDiffusionPipeline.from_single_file(
-            "./A-Zovya-Photoreal-Inpainting-V2/aZovyaPhotoreal_v2InpaintVAE.safetensors",
+    pipeline = AutoPipelineForInpainting.from_pretrained(
+            "./urpm-inpaint",
             torch_dtype=torch.float16,
             variant="fp16",
             requires_safety_checker=False,
-            use_safetensors=True
         ).to("cuda")
 
     def predict(
