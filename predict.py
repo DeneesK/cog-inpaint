@@ -5,10 +5,9 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import AutoPipelineForInpainting  # noqa
+from diffusers import StableDiffusionPipeline  # noqa
 import torch  # noqa
 
-import const
 from PIL import Image  # noqa
 from diffusers.utils import load_image  # noqa
 
@@ -17,14 +16,13 @@ class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make
         running multiple predictions efficient"""
-        # self.model = torch.load("./weights.pth")
-        self.pipeline = AutoPipelineForInpainting.from_pretrained(
-            "./a-zovya-photoreal-v2",
+    pipeline = StableDiffusionPipeline.from_single_file(
+            "./A-Zovya-Photoreal-Inpainting-V2/aZovyaPhotoreal_v2InpaintVAE.safetensors",
             torch_dtype=torch.float16,
             variant="fp16",
-            safety_checker=False
+            requires_safety_checker=False,
+            use_safetensors=True
         ).to("cuda")
-        self.pipeline.enable_model_cpu_offload()
 
     def predict(
         self,
@@ -32,7 +30,7 @@ class Predictor(BasePredictor):
         mask: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt"),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default=const.NEGATIVE),
+                                     default=''),
         seed: int = Input(description="input seed",
                           default=0),
         num_inference_steps: int = Input(
@@ -42,6 +40,10 @@ class Predictor(BasePredictor):
         guidance_scale: int = Input(
             description="input guidance_scale",
             default=7
+        ),
+        strength: float = Input(
+            description="input strength",
+            default=0.8
         ),
         # width: int = Input(description="input width",
         #                    default=1024),
@@ -73,7 +75,8 @@ class Predictor(BasePredictor):
                                   mask_image=mask_image,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
-                                  guidance_scale=int(guidance_scale)).images[0]
+                                  guidance_scale=int(guidance_scale),
+                                  strength=strength).images[0]
             print(image)
             image.save(out_path)
             return out_path
