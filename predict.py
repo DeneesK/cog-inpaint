@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
-            "./Realistic_Vision_V3.0_VAE",
+            "./epicrealism_pureevolutionv5-inpainting",
             torch_dtype=torch.float16,
             variant="fp16",
             requires_safety_checker=False,
