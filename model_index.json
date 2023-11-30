@@ -1,29 +1,29 @@
 {
-    "_class_name": "StableDiffusionPipeline",
-    "_diffusers_version": "0.13.1",
-    "feature_extractor": [
-      "transformers",
-      "CLIPFeatureExtractor"
-    ],
-    "scheduler": [
+  "_class_name": "StableDiffusionPipeline",
+  "_diffusers_version": "0.16.1",
+  "feature_extractor": [
+      null,
+      null
+  ],
+  "scheduler": [
       "diffusers",
-      "PNDMScheduler"
-    ],
-    "text_encoder": [
+      "DEISMultistepScheduler"
+  ],
+  "text_encoder": [
       "transformers",
       "CLIPTextModel"
-    ],
-    "tokenizer": [
+  ],
+  "tokenizer": [
       "transformers",
       "CLIPTokenizer"
-    ],
-    "unet": [
+  ],
+  "unet": [
       "diffusers",
       "UNet2DConditionModel"
-    ],
-    "vae": [
+  ],
+  "vae": [
       "diffusers",
       "AutoencoderKL"
-    ]
-  }
+  ]
+}
   
