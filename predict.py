@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
-            "./epicrealism_pureevolutionv5-inpainting",
+            "./epiCRealism",
             requires_safety_checker=False,
             use_safetensors=True
         ).to("cuda")
