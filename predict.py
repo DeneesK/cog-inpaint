@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = StableDiffusionInpaintPipeline.from_single_file(
-            "./epiCRealism",
+            "./epiCRealism/epicrealism_v10-inpainting.safetensors",
             requires_safety_checker=False,
             use_safetensors=True
         ).to("cuda")
