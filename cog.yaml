@@ -11,6 +11,7 @@ build:
     - "transformers==4.33.0"
     - "accelerate"
     - "Pillow"
+    - "safetensors"
   run:
     - "pip install --upgrade pip"
     - "rm ~/.cache/pip -rf"

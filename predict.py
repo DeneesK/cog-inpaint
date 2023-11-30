@@ -19,9 +19,8 @@ class Predictor(BasePredictor):
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         self.pipeline = AutoPipelineForInpainting.from_pretrained(
             "./epicrealism_pureevolutionv5-inpainting",
-            torch_dtype=torch.float16,
-            variant="fp16",
             requires_safety_checker=False,
+            use_safetensors=True
         ).to("cuda")
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
