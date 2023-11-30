@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import AutoPipelineForInpainting  # noqa
+from diffusers import StableDiffusionInpaintPipeline, StableDiffusionPipeline  # noqa
 import torch  # noqa
 
 from PIL import Image  # noqa
@@ -17,7 +17,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        self.pipeline = AutoPipelineForInpainting.from_pretrained(
+        self.pipeline = StableDiffusionInpaintPipeline.from_single_file(
             "./epiCRealism",
             requires_safety_checker=False,
             use_safetensors=True
