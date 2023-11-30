@@ -12,6 +12,14 @@ from PIL import Image  # noqa
 from diffusers.utils import load_image  # noqa
 
 
+def disabled_safety_checker(images, clip_input):
+    if len(images.shape) == 4:
+        num_images = images.shape[0]
+        return images, [False]*num_images
+    else:
+        return images, False
+
+
 class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make
@@ -70,6 +78,7 @@ class Predictor(BasePredictor):
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            self.pipeline.safety_checker = disabled_safety_checker
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
