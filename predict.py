@@ -88,6 +88,7 @@ class Predictor(BasePredictor):
                                   guidance_scale=int(guidance_scale),
                                   strength=strength).images[0]
             print(image)
+            image.resize(((w, h)))
             image.save(out_path)
             return out_path
         except Exception as ex:
