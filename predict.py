@@ -71,7 +71,6 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
 
             init_image = load_image(str(image))
-            size_origin = init_image.size
             w, h = resize_(init_image)
             init_image.resize((w, h))
             mask_image = load_image(str(mask)).resize((w, h))
@@ -87,9 +86,11 @@ class Predictor(BasePredictor):
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
-                                  strength=strength).images[0]
+                                  strength=strength,
+                                  width=w,
+                                  height=h
+                                  ).images[0]
             print(image)
-            image.resize(size_origin)
             image.save(out_path)
             return out_path
         except Exception as ex:
