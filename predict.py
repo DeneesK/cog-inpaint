@@ -37,14 +37,14 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        self.controlnet = ControlNetModel.from_pretrained("./control_v11p_sd15_inpaint",
-                                                          torch_dtype=torch.float16,
-                                                          use_safetensors=True)
+        # controlnet = ControlNetModel.from_pretrained("./control_v11p_sd15_inpaint",
+        #                                              torch_dtype=torch.float16,
+        #                                              use_safetensors=True)
         self.pipeline = StableDiffusionControlNetInpaintPipeline.from_single_file(
             "./epiCRealism/epicrealism_v10-inpainting.safetensors",
             use_safetensors=True,
             torch_dtype=torch.float16,
-            controlnet=self.controlnet,
+            # controlnet=controlnet,
             requires_safety_checker=False,
         ).to("cuda")
         self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
