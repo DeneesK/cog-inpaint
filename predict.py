@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler  # noqa
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, DDIMScheduler  # noqa
 import torch  # noqa
 import numpy as np
 
@@ -37,14 +37,15 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        self.controlnet = ControlNetModel.from_pretrained("./control_v11p_sd15_openpose", use_safetensors=True)
+        self.controlnet = ControlNetModel.from_pretrained("./control_v11p_sd15_inpaint",
+                                                          torch_dtype=torch.float16)
         self.pipeline = StableDiffusionControlNetInpaintPipeline.from_single_file(
             "./epiCRealism/epicrealism_v10-inpainting.safetensors",
             controlnet=self.controlnet,
             requires_safety_checker=False,
             use_safetensors=True
         ).to("cuda")
-        self.pipeline.scheduler = UniPCMultistepScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -98,6 +99,7 @@ class Predictor(BasePredictor):
                                   negative_prompt=negative_prompt,
                                   image=init_image,
                                   mask_image=mask_image,
+                                  eta=1.0,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
