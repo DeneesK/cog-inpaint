@@ -11,6 +11,7 @@ import numpy as np
 
 from PIL import Image  # noqa
 from diffusers.utils import load_image  # noqa
+from mask_gen import generate_mask
 
 
 def disabled_safety_checker(images, clip_input):
@@ -54,7 +55,6 @@ class Predictor(BasePredictor):
     def predict(
         self,
         image: Path = Input(description="input image"),
-        mask: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt"),
         negative_prompt: str = Input(description="input negative_prompt",
                                      default=''),
@@ -71,29 +71,22 @@ class Predictor(BasePredictor):
         strength: float = Input(
             description="input strength",
             default=0.8
-        ),
-        # width: int = Input(description="input width",
-        #                    default=1024),
-        # height: int = Input(description="input height",
-        #                     default=1024),
-        controlnet: bool = Input(description="input bool",
-                                 default=False),
+        )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
-            if controlnet:
-                pass
-
             if not seed:
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
             w, h = resize_(init_image)
             init_image = init_image.resize((w, h))
-            mask_image = load_image(str(mask)).resize((w, h))
-            print(init_image.size)
-            print(mask_image.size)
-            print(prompt)
+
+            out_path = Path(tempfile.mkdtemp()) / "output.png"
+            generate_mask(image, str(out_path), str(init_image))
+
+            mask_image = load_image(str(out_path)).resize((w, h))
+
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
