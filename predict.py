@@ -91,6 +91,8 @@ class Predictor(BasePredictor):
             w, h = resize_(init_image)
             init_image.resize((w, h))
             mask_image = load_image(str(mask)).resize((w, h))
+            print(init_image.size)
+            print(mask_image.size)
             print(prompt)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
