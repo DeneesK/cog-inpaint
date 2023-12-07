@@ -89,7 +89,7 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
             w, h = resize_(init_image)
-            init_image.resize((w, h))
+            init_image = init_image.resize((w, h))
             mask_image = load_image(str(mask)).resize((w, h))
             print(init_image.size)
             print(mask_image.size)
