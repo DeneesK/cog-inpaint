@@ -41,7 +41,7 @@ class Predictor(BasePredictor):
                                                      torch_dtype=torch.float16,
                                                      use_safetensors=True)
         self.pipeline = StableDiffusionControlNetInpaintPipeline.from_pretrained(
-            "redstonehero/epicrealism_pureevolutionv5-inpainting",
+            "./epicrealism_pureevolutionv5-inpainting",
             use_safetensors=True,
             torch_dtype=torch.float16,
             controlnet=controlnet,
