@@ -36,7 +36,7 @@ def get_mediapipe_image(image: Image) -> mp.Image:
     return mp.Image(image_format=image_format, data=numpy_image)
 
 
-def generate_mask(image: Image, path: str, mask_index: str = '4'):
+def generate_mask(image: Image, path: str, mask_index: str = ''):
     if image is not None:
         image = Image.open(image)
         model_folder_path = os.path.join('models', 'mediapipe')
