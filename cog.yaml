@@ -12,6 +12,7 @@ build:
     - "accelerate"
     - "Pillow"
     - "safetensors"
+    - "controlnet_aux==0.3.0"
   run:
     - "pip install --upgrade pip"
     - "rm ~/.cache/pip -rf"
