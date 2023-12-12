@@ -93,7 +93,7 @@ class Predictor(BasePredictor):
 
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
-            generate_mask(str(image), str(out_path))
+            generate_mask(image=str(image),path=str(out_path))
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
 
