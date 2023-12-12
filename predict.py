@@ -63,14 +63,14 @@ class Predictor(BasePredictor):
     def predict(
         self,
         image: Path = Input(description="input image"),
-        prompt: str = Input(description="input prompt"),
+        prompt: str = Input(description="input prompt", default='nsfw, nude, breast, pussy, 4k, masterpiece, sexy, seductive'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default=''),
+                                     default='(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck'),
         seed: int = Input(description="input seed",
                           default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
-            default=20
+            default=31
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
@@ -78,7 +78,7 @@ class Predictor(BasePredictor):
         ),
         strength: float = Input(
             description="input strength",
-            default=0.8
+            default=0.95
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -91,7 +91,7 @@ class Predictor(BasePredictor):
 
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
-            generate_mask(image, str(out_path))
+            generate_mask(init_image, str(out_path))
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
 
