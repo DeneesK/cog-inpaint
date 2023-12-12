@@ -49,6 +49,7 @@ class Predictor(BasePredictor):
             requires_safety_checker=False,
         ).to("cuda")
         self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
+        self.pipeline.load_lora_weights('./', weight_name='breastinclassBetter.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -80,13 +81,12 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
             w, h = resize_(init_image)
-            init_image = init_image.resize((w, h))
 
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
             generate_mask(image, str(out_path))
 
-            mask_image = load_image(str(out_path)).resize((w, h))
+            mask_image = load_image(str(out_path)).resize(image.size)
 
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
@@ -118,19 +118,15 @@ def resize_(immage) -> tuple[int, int]:
     w = immage.width
     h = immage.height
 
-    if h < 1024 and w < 1024:
-        if h % 8 == 0 and w % 8 == 0:
-            return w, h
-        w = w - (w % 8)
+    if w > h:
+        c = h / w
+        h = int(1024 * c)
         h = h - (h % 8)
+        w = 1024
         return w, h
 
-    while True:
-        if h < 1024 and w < 1024:
-            if h % 8 == 0 and w % 8 == 0:
-                return w, h
-            w = w - (w % 8)
-            h = h - (h % 8)
-            return w, h
-        h = int(h / 2)
-        w = int(w / 2)
+    c = w / h
+    w = int(1024 * c)
+    w = w - (w % 8)
+    h = 1024
+    return w, h
