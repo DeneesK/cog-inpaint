@@ -6,6 +6,7 @@ sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, DDIMScheduler  # noqa
+from diffusers.loaders.lora import LoraLoaderMixin
 from controlnet_aux import HEDdetector, OpenposeDetector
 import torch  # noqa
 import numpy as np
@@ -48,7 +49,7 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
-        self.pipeline = StableDiffusionControlNetInpaintPipeline.from_pretrained(
+        self.pipeline: StableDiffusionControlNetInpaintPipeline = StableDiffusionControlNetInpaintPipeline.from_pretrained(
             "./epicrealism_pureevolutionv5-inpainting",
             use_safetensors=True,
             torch_dtype=torch.float16,
@@ -81,11 +82,16 @@ class Predictor(BasePredictor):
         strength: float = Input(
             description="input strength",
             default=0.95
+        ),
+        lora_scale: float = Input(
+            description="lora scale",
+            default=1.0
         )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
+            self.pipeline.lora_scale = float(lora_scale)
             if not seed:
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
