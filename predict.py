@@ -93,7 +93,7 @@ class Predictor(BasePredictor):
 
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
-            generate_mask(image=str(image),path=str(out_path))
+            generate_mask(image=str(image), path=str(out_path))
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
 
@@ -101,8 +101,8 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            control_image = self.processor(image, hand_and_face=True)
-            control_image2 = self.processor2(image, scribble=True)
+            control_image = self.processor(init_image, hand_and_face=True)
+            control_image2 = self.processor2(init_image, scribble=True)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -125,9 +125,9 @@ class Predictor(BasePredictor):
             return str(ex)
 
 
-def resize_(immage) -> tuple[int, int]:
-    w = immage.width
-    h = immage.height
+def resize_(image: Image) -> tuple[int, int]:
+    w = image.width
+    h = image.height
 
     if w > h:
         c = h / w
