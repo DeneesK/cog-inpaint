@@ -6,6 +6,7 @@ sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, DDIMScheduler  # noqa
+from controlnet_aux import HEDdetector
 import torch  # noqa
 import numpy as np
 
@@ -38,9 +39,14 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        controlnet = ControlNetModel.from_pretrained("./control_v11p_sd15_inpaint",
-                                                     torch_dtype=torch.float16,
-                                                     use_safetensors=True)
+        controlnet1 = ControlNetModel.from_pretrained("./control_v11p_sd15_inpaint",
+                                                      torch_dtype=torch.float16,
+                                                      use_safetensors=True)
+        controlnet2 = ControlNetModel.from_pretrained(
+            "lllyasviel/control_v11p_sd15_scribble",
+            torch_dtype=torch.float16
+        )
+        controlnet = [controlnet1, controlnet2]
         self.pipeline = StableDiffusionControlNetInpaintPipeline.from_pretrained(
             "./epicrealism_pureevolutionv5-inpainting",
             use_safetensors=True,
@@ -48,6 +54,7 @@ class Predictor(BasePredictor):
             controlnet=controlnet,
             requires_safety_checker=False,
         ).to("cuda")
+        self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
         self.pipeline.load_lora_weights('./', weight_name='breastinclassBetter.safetensors')
         self.pipeline.enable_model_cpu_offload()
@@ -93,6 +100,7 @@ class Predictor(BasePredictor):
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
             control_image = make_inpaint_condition(init_image, mask_image)
+            control_image2 = self.processor2(image, scribble=True)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -104,7 +112,8 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   width=w,
                                   height=h,
-                                  control_image=control_image,
+                                  control_image=[control_image,
+                                                 control_image2]
                                   ).images[0]
             print(image)
             image.save(out_path)
