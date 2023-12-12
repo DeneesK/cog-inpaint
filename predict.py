@@ -91,7 +91,6 @@ class Predictor(BasePredictor):
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
         try:
-            self.pipeline.lora_scale = float(lora_scale)
             if not seed:
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
