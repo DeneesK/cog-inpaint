@@ -55,7 +55,7 @@ class Predictor(BasePredictor):
                 torch_dtype=torch.float16,
                 controlnet=controlnet,
                 requires_safety_checker=False,
-            ).to("cuda")
+                ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
@@ -108,6 +108,7 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             control_image = self.processor(init_image, hand_and_face=True)
             control_image2 = self.processor2(init_image, scribble=True)
+            self.pipeline._lora_scale = float(lora_scale)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
