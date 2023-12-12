@@ -6,7 +6,6 @@ sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
 from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, DDIMScheduler  # noqa
-from diffusers.loaders.lora import LoraLoaderMixin
 from controlnet_aux import HEDdetector, OpenposeDetector
 import torch  # noqa
 import numpy as np
@@ -49,13 +48,14 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
         )
         controlnet = [controlnet1, controlnet2]
-        self.pipeline: StableDiffusionControlNetInpaintPipeline = StableDiffusionControlNetInpaintPipeline.from_pretrained(
-            "./epicrealism_pureevolutionv5-inpainting",
-            use_safetensors=True,
-            torch_dtype=torch.float16,
-            controlnet=controlnet,
-            requires_safety_checker=False,
-        ).to("cuda")
+        self.pipeline: StableDiffusionControlNetInpaintPipeline = \
+            StableDiffusionControlNetInpaintPipeline.from_pretrained(
+                "./epicrealism_pureevolutionv5-inpainting",
+                use_safetensors=True,
+                torch_dtype=torch.float16,
+                controlnet=controlnet,
+                requires_safety_checker=False,
+            ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
