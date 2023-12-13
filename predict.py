@@ -39,18 +39,19 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        # controlnet1 = ControlNetModel.from_pretrained(
-        #     "lllyasviel/control_v11p_sd15_openpose",
-        #     torch_dtype=torch.float16
-        #     )
-        self.pipeline: StableDiffusionInpaintPipeline = \
-            StableDiffusionInpaintPipeline.from_single_file(
-                "./epicrealism_pureEvolutionV5-inpainting.safetensors",
+        controlnet1 = ControlNetModel.from_pretrained(
+            "lllyasviel/control_v11p_sd15_openpose",
+            torch_dtype=torch.float16
+            )
+        self.pipeline: StableDiffusionControlNetInpaintPipeline = \
+            StableDiffusionControlNetInpaintPipeline.from_pretrained(
+                "SG161222/Realistic_Vision_V6.0_B1_noVAE",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
+                controlnet=controlnet1
                 ).to("cuda")
-        # self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
@@ -98,8 +99,8 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            # control_image = self.processor(init_image, hand_and_face=True)
-            # control_image.resize(init_image.size)
+            control_image = self.processor(init_image, hand_and_face=True)
+            control_image.resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -111,10 +112,10 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   width=w,
                                   height=h,
-                                #   control_image=control_image,
+                                  control_image=control_image,
                                   cross_attention_kwargs={"scale": float(lora_scale)}
                                   ).images[0]
-            image = make_image_grid([image, mask_image], rows=1, cols=2)
+            image = make_image_grid([image, mask_image.resize((w, h))], rows=1, cols=3)
             image.save(out_path)
             return out_path
         except Exception as ex:
