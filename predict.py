@@ -39,17 +39,17 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        # controlnet1 = ControlNetModel.from_pretrained(
-        #     "lllyasviel/control_v11p_sd15_openpose",
-        #     torch_dtype=torch.float16
-        #     )
+        controlnet1 = ControlNetModel.from_pretrained(
+            "lllyasviel/control_v11p_sd15_openpose",
+            torch_dtype=torch.float16
+            )
         self.pipeline: StableDiffusionInpaintPipeline = \
             StableDiffusionInpaintPipeline.from_single_file(
                 "uberRealisticPornMerge_urpmv13Inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
-                # controlnet=controlnet1
+                controlnet=controlnet1
                 ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
@@ -113,11 +113,12 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            control_image = self.processor(init_image, hand_and_face=True)
+            control_image = self.processor(init_image, hand_and_face=True).resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
                                   mask_image=mask_image,
+                                  control_image=control_image,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
