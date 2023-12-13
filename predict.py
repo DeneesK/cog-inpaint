@@ -112,11 +112,12 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   width=w,
                                   height=h,
-                                #   control_image=control_image,
                                   cross_attention_kwargs={"scale": float(lora_scale)}
                                   ).images[0]
-            image = make_image_grid([image, mask_image.resize((w, h))], rows=1, cols=3)
+            image = make_image_grid([image, mask_image.resize((w, h))],
+                                    rows=1, cols=2)
             image.save(out_path)
+            print(image)
             return out_path
         except Exception as ex:
             print(ex)
