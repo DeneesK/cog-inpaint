@@ -43,9 +43,9 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
             )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
-            StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "./uber-realistic-porn-merge-urpm",
-                # use_safetensors=True,
+            StableDiffusionControlNetInpaintPipeline.from_single_file(
+                "patsanchique/uberRealisticPornMerge_urpmv13Inpainting/uberRealisticPornMerge_urpmv13Inpainting.safetensors",
+                use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
                 controlnet=controlnet1
@@ -53,8 +53,6 @@ class Predictor(BasePredictor):
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
         self.pipeline.enable_model_cpu_offload()
-        vae = AutoencoderKL.from_single_file("YANGYINGDUO/vae-ft-mse-840000-ema-pruned.ckpt/vae-ft-mse-840000-ema-pruned.ckpt").to("cuda")
-        self.pipeline.vae = vae
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
