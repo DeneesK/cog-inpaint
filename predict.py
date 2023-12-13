@@ -82,7 +82,7 @@ class Predictor(BasePredictor):
         ),
         mask: str = Input(
             description="""
-            !STRICT -> EXAMPLE: 1,2 or 4....
+            !STRICT -> EXAMPLE: 1,2 or 4 ...
             # 0 - background
             # 1 - hair
             # 2 - body - skin
@@ -104,7 +104,7 @@ class Predictor(BasePredictor):
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
             generate_mask(image=str(image),
-                          path=str(out_path)
+                          path=str(out_path),
                           mask_index=mask)
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
