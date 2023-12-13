@@ -63,7 +63,7 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
 
             masks = []
 
-            mask_index = [4]
+            mask_index = [2, 4]
             # https://developers.google.com/mediapipe/solutions/vision/image_segmenter#multiclass-model
             # 0 - background
             # 1 - hair
