@@ -43,8 +43,8 @@ class Predictor(BasePredictor):
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
             )
-        self.pipeline: StableDiffusionInpaintPipeline = \
-            StableDiffusionInpaintPipeline.from_single_file(
+        self.pipeline: StableDiffusionControlNetInpaintPipeline = \
+            StableDiffusionControlNetInpaintPipeline.from_single_file(
                 "uberRealisticPornMerge_urpmv13Inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
