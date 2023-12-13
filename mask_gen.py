@@ -63,7 +63,7 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
 
             masks = []
             if mask_index == '':
-                mask_index = [4]
+                mask_index = [2, 4]
             else:
                 mask_index = [int(i) for i in mask_index.split(',')]
             # https://developers.google.com/mediapipe/solutions/vision/image_segmenter#multiclass-model
@@ -94,7 +94,7 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
             for i, mask in enumerate(masks):
                 condition = np.stack(
                     (mask.numpy_view(),) * image_shape[-1], axis=-1
-                    ) > 0.25
+                    ) > 0.04
                 mask_array = np.where(condition,
                                       mask_foreground_array,
                                       mask_background_array)
@@ -113,4 +113,4 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
 
 if __name__ == '__main__':
     print('Starting')
-    image = generate_mask(Image.open('test.jpg'), 'result.png')
+    image = generate_mask('test.jpg', 'result.png')
