@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel  # noqa
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, StableDiffusionInpaintPipeline  # noqa
 from controlnet_aux import OpenposeDetector
 import torch  # noqa
 import numpy as np
@@ -43,12 +43,11 @@ class Predictor(BasePredictor):
         #     "lllyasviel/control_v11p_sd15_openpose",
         #     torch_dtype=torch.float16
         #     )
-        self.pipeline: StableDiffusionControlNetInpaintPipeline = \
-            StableDiffusionControlNetInpaintPipeline.from_single_file(
+        self.pipeline: StableDiffusionInpaintPipeline = \
+            StableDiffusionInpaintPipeline.from_single_file(
                 "./epicrealism_pureEvolutionV5-inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
-                controlnet=controlnet1,
                 requires_safety_checker=False,
                 ).to("cuda")
         # self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
