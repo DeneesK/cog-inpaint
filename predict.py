@@ -44,8 +44,8 @@ class Predictor(BasePredictor):
             torch_dtype=torch.float16
             )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
-            StableDiffusionControlNetInpaintPipeline.from_single_file(
-                "uberRealisticPornMerge_urpmv13Inpainting.safetensors",
+            StableDiffusionControlNetInpaintPipeline.from_pretrained(
+                "deneesk/urpm-inpaint",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
