@@ -50,7 +50,7 @@ class Predictor(BasePredictor):
         # controlnet = [controlnet1, controlnet2]
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "SG161222/Realistic_Vision_V5.1_noVAE",
+                "./Realistic_Vision_V6.0_B1_noVAE",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 controlnet=controlnet1,
