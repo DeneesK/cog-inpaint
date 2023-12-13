@@ -45,7 +45,7 @@ class Predictor(BasePredictor):
             )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "deneesk/urpm-inpaint",
+                "ductridev/uber-realistic-porn-merge-urpm",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
@@ -90,7 +90,7 @@ class Predictor(BasePredictor):
             # 4 - clothes
             # 5 - others(accessories)
             """,
-            default=''
+            default='2,4'
             )
     ) -> Path:
         """Run a single prediction on the model"""
