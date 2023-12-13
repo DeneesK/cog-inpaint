@@ -45,7 +45,7 @@ class Predictor(BasePredictor):
         #     )
         self.pipeline: StableDiffusionInpaintPipeline = \
             StableDiffusionInpaintPipeline.from_single_file(
-                "Realistic_Vision_V6.0_NV_B1_inpainting_fp16.safetensors",
+                "uberRealisticPornMerge_urpmv13Inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
