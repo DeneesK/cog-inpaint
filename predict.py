@@ -5,7 +5,7 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, StableDiffusionInpaintPipeline  # noqa
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, AutoencoderKL, StableDiffusionInpaintPipeline  # noqa
 from controlnet_aux import OpenposeDetector
 import torch  # noqa
 import numpy as np
@@ -23,15 +23,14 @@ def disabled_safety_checker(images, clip_input):
         return images, False
 
 
-def make_inpaint_condition(image, image_mask):
-    image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
-    image_mask = np.array(image_mask.convert("L")).astype(np.float32) / 255.0
-
-    assert image.shape[0:1] == image_mask.shape[0:1], "image and image_mask must have the same image size"
-    image[image_mask > 0.5] = -1.0  # set as masked pixel
-    image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
-    image = torch.from_numpy(image)
-    return image
+# def make_inpaint_condition(image, image_mask):
+#     image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
+#     image_mask = np.array(image_mask.convert("L")).astype(np.float32) / 255.0
+#     assert image.shape[0:1] == image_mask.shape[0:1], "image and image_mask must have the same image size"
+#     image[image_mask > 0.5] = -1.0  # set as masked pixel
+#     image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
+#     image = torch.from_numpy(image)
+#     return image
 
 
 class Predictor(BasePredictor):
@@ -54,6 +53,8 @@ class Predictor(BasePredictor):
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
         self.pipeline.enable_model_cpu_offload()
+        vae = AutoencoderKL.from_single_file("YANGYINGDUO/vae-ft-mse-840000-ema-pruned.ckpt/vae-ft-mse-840000-ema-pruned.ckpt").to("cuda")
+        self.pipeline.vae = vae
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     def predict(
@@ -113,7 +114,10 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            control_image = self.processor(init_image, hand_and_face=True).resize(init_image.size)
+            control_image = self.processor(
+                init_image,
+                hand_and_face=True
+                ).resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -125,9 +129,14 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   width=w,
                                   height=h,
-                                  cross_attention_kwargs={"scale": float(lora_scale)}
+                                  cross_attention_kwargs={
+                                      "scale": float(lora_scale)
+                                    }
                                   ).images[0]
-            image = make_image_grid([image, mask_image.resize((w, h)), control_image.resize((w, h))],
+            image = make_image_grid([
+                                     image, mask_image.resize((w, h)),
+                                     control_image.resize((w, h))
+                                     ],
                                     rows=1, cols=3)
             image.save(out_path)
             print(image)
