@@ -5,8 +5,8 @@ import random
 sys.path.insert(0, "stylegan-encoder")
 import tempfile  # noqa
 from cog import BasePredictor, Input, Path  # noqa
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, DDIMScheduler  # noqa
-from controlnet_aux import HEDdetector, OpenposeDetector
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel  # noqa
+from controlnet_aux import OpenposeDetector
 import torch  # noqa
 import numpy as np
 
@@ -39,20 +39,20 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        controlnet1 = ControlNetModel.from_pretrained(
-            "lllyasviel/control_v11p_sd15_openpose",
-            torch_dtype=torch.float16
-            )
+        # controlnet1 = ControlNetModel.from_pretrained(
+        #     "lllyasviel/control_v11p_sd15_openpose",
+        #     torch_dtype=torch.float16
+        #     )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
-            StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "./Realistic_Vision_V6.0_B1_noVAE",
+            StableDiffusionControlNetInpaintPipeline.from_single_file(
+                "./epicrealism_pureEvolutionV5-inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 controlnet=controlnet1,
                 requires_safety_checker=False,
                 ).to("cuda")
-        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-        self.pipeline.load_lora_weights('./', weight_name='add_detail.safetensors')
+        # self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+        self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -77,7 +77,7 @@ class Predictor(BasePredictor):
             default=0.95
         ),
         lora_scale: float = Input(
-            description="lora scale",
+            description="lora scale FROM 0 to 1, step 0.1",
             default=1.0
         )
     ) -> Path:
@@ -99,7 +99,7 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            control_image = self.processor(init_image, hand_and_face=True)
+            # control_image = self.processor(init_image, hand_and_face=True)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -111,9 +111,10 @@ class Predictor(BasePredictor):
                                   strength=strength,
                                   width=w,
                                   height=h,
-                                  control_image=control_image
+                                #   control_image=control_image,
+                                  cross_attention_kwargs={"scale": float(lora_scale)}
                                   ).images[0]
-            image = make_image_grid([init_image, mask_image, control_image], rows=1, cols=3)
+            image = make_image_grid([init_image, mask_image], rows=1, cols=2)
             image.save(out_path)
             return out_path
         except Exception as ex:
