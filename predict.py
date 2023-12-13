@@ -51,7 +51,7 @@ class Predictor(BasePredictor):
                 requires_safety_checker=False,
                 # controlnet=controlnet1
                 ).to("cuda")
-        # self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
+        self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
@@ -99,13 +99,12 @@ class Predictor(BasePredictor):
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            # control_image = self.processor(init_image, hand_and_face=True)
-            # control_image.resize(init_image.size)
+            control_image = self.processor(init_image, hand_and_face=True)
+            control_image.resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
                                   mask_image=mask_image,
-                                  eta=1.0,
                                   generator=generator,
                                   num_inference_steps=int(num_inference_steps),
                                   guidance_scale=int(guidance_scale),
@@ -114,8 +113,8 @@ class Predictor(BasePredictor):
                                   height=h,
                                   cross_attention_kwargs={"scale": float(lora_scale)}
                                   ).images[0]
-            image = make_image_grid([image, mask_image.resize((w, h))],
-                                    rows=1, cols=2)
+            image = make_image_grid([image, mask_image.resize((w, h)), control_image],
+                                    rows=1, cols=3)
             image.save(out_path)
             print(image)
             return out_path
