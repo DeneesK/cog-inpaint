@@ -11,7 +11,7 @@ import torch  # noqa
 import numpy as np
 
 from PIL import Image  # noqa
-from diffusers.utils import load_image  # noqa
+from diffusers.utils import load_image,  make_image_grid  # noqa
 from mask_gen import generate_mask
 
 
@@ -49,8 +49,8 @@ class Predictor(BasePredictor):
         # )
         # controlnet = [controlnet1, controlnet2]
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
-            StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "./epicrealism_pureevolutionv5-inpainting",
+            StableDiffusionControlNetInpaintPipeline.from_single_file(
+                "./realisticVisionV60B1_v60B1InpaintingVAE.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 controlnet=controlnet1,
@@ -59,7 +59,7 @@ class Predictor(BasePredictor):
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         # self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
         # self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
-        self.pipeline.load_lora_weights('./', weight_name='breastinclassBetter.safetensors')
+        self.pipeline.load_lora_weights('./', weight_name='NSFW_Reality_Engine_0004.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -122,7 +122,7 @@ class Predictor(BasePredictor):
                                   height=h,
                                   control_image=control_image
                                   ).images[0]
-            print(image)
+            image = make_image_grid([init_image, mask_image, control_image], rows=1, cols=3)
             image.save(out_path)
             return out_path
         except Exception as ex:
