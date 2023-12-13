@@ -45,8 +45,8 @@ class Predictor(BasePredictor):
             )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_pretrained(
-                "ductridev/uber-realistic-porn-merge-urpm",
-                use_safetensors=True,
+                "./uber-realistic-porn-merge-urpm",
+                # use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
                 controlnet=controlnet1
