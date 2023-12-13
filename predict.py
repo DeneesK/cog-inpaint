@@ -100,7 +100,6 @@ class Predictor(BasePredictor):
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
             control_image = self.processor(init_image, hand_and_face=True)
-            control_image.resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
@@ -113,7 +112,7 @@ class Predictor(BasePredictor):
                                   height=h,
                                   cross_attention_kwargs={"scale": float(lora_scale)}
                                   ).images[0]
-            image = make_image_grid([image, mask_image.resize((w, h)), control_image],
+            image = make_image_grid([image, mask_image.resize((w, h)), control_image.resize((w, h))],
                                     rows=1, cols=3)
             image.save(out_path)
             print(image)
