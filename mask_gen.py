@@ -36,7 +36,7 @@ def get_mediapipe_image(image: Image) -> mp.Image:
     return mp.Image(image_format=image_format, data=numpy_image)
 
 
-def generate_mask(image: Image, path: str, mask_index: str = ''):
+def generate_mask(image: Image, path: str, mask_index: str = '', strength: float = 0.04):  # noqa
     if image is not None:
         image = Image.open(image)
         model_folder_path = os.path.join('models', 'mediapipe')
@@ -94,7 +94,7 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
             for i, mask in enumerate(masks):
                 condition = np.stack(
                     (mask.numpy_view(),) * image_shape[-1], axis=-1
-                    ) > 0.04  # default: 0.25
+                    ) > float(strength)  # default: 0.25
                 mask_array = np.where(condition,
                                       mask_foreground_array,
                                       mask_background_array)

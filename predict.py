@@ -90,7 +90,11 @@ class Predictor(BasePredictor):
             # 5 - others(accessories)
             """,
             default='2,4'
-            )
+            ),
+        mask_strength: float = Input(
+            description="---В прошлый раз было 0.04, дефолт был 0.25---",
+            default=0.04
+        )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
@@ -104,7 +108,8 @@ class Predictor(BasePredictor):
 
             generate_mask(image=str(image),
                           path=str(out_path),
-                          mask_index=mask)
+                          mask_index=mask,
+                          strength=mask_strength)
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
 
