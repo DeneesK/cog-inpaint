@@ -43,11 +43,6 @@ class Predictor(BasePredictor):
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
             )
-        # controlnet2 = ControlNetModel.from_pretrained(
-        #     "lllyasviel/control_v11p_sd15_scribble",
-        #     torch_dtype=torch.float16
-        # )
-        # controlnet = [controlnet1, controlnet2]
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_pretrained(
                 "./Realistic_Vision_V6.0_B1_noVAE",
@@ -57,9 +52,7 @@ class Predictor(BasePredictor):
                 requires_safety_checker=False,
                 ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
-        # self.processor2 = HEDdetector.from_pretrained('lllyasviel/Annotators')
-        # self.pipeline.scheduler = DDIMScheduler.from_config(self.pipeline.scheduler.config)
-        self.pipeline.load_lora_weights('./', weight_name='NSFW_Reality_Engine_0004.safetensors')
+        self.pipeline.load_lora_weights('./', weight_name='add_detail.safetensors')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -107,8 +100,6 @@ class Predictor(BasePredictor):
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
             control_image = self.processor(init_image, hand_and_face=True)
-            # control_image2 = self.processor2(init_image, scribble=True)
-            # self.pipeline._lora_scale = float(lora_scale)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
