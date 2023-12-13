@@ -39,13 +39,13 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        controlnet1 = ControlNetModel.from_pretrained(
-            "lllyasviel/control_v11p_sd15_openpose",
-            torch_dtype=torch.float16
-            )
+        # controlnet1 = ControlNetModel.from_pretrained(
+        #     "lllyasviel/control_v11p_sd15_openpose",
+        #     torch_dtype=torch.float16
+        #     )
         self.pipeline: StableDiffusionInpaintPipeline = \
-            StableDiffusionInpaintPipeline.from_pretrained(
-                "SG161222/Realistic_Vision_V6.0_B1_noVAE",
+            StableDiffusionInpaintPipeline.from_single_file(
+                "Realistic_Vision_V6.0_NV_B1_inpainting_fp16.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
