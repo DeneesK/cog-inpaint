@@ -94,7 +94,7 @@ def generate_mask(image: Image, path: str, mask_index: str = ''):
             for i, mask in enumerate(masks):
                 condition = np.stack(
                     (mask.numpy_view(),) * image_shape[-1], axis=-1
-                    ) > 0.04
+                    ) > 0.04  # default: 0.25
                 mask_array = np.where(condition,
                                       mask_foreground_array,
                                       mask_background_array)
