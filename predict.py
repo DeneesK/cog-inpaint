@@ -99,6 +99,7 @@ class Predictor(BasePredictor):
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
             # control_image = self.processor(init_image, hand_and_face=True)
+            # control_image.resize(init_image.size)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
