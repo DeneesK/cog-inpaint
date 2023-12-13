@@ -79,7 +79,19 @@ class Predictor(BasePredictor):
         lora_scale: float = Input(
             description="lora scale FROM 0 to 1, step 0.1",
             default=1.0
-        )
+        ),
+        mask: str = Input(
+            description="""
+            !STRICT -> EXAMPLE: 1,2 or 4....
+            # 0 - background
+            # 1 - hair
+            # 2 - body - skin
+            # 3 - face - skin
+            # 4 - clothes
+            # 5 - others(accessories)
+            """,
+            default=''
+            )
     ) -> Path:
         """Run a single prediction on the model"""
         out_path = Path(tempfile.mkdtemp()) / "output.png"
