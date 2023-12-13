@@ -50,7 +50,7 @@ class Predictor(BasePredictor):
         # controlnet = [controlnet1, controlnet2]
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_single_file(
-                "./realisticVisionV60B1_v60B1InpaintingVAE.safetensors",
+                "./Realistic_Vision_V6.0_NV_B1_inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 controlnet=controlnet1,
@@ -108,7 +108,7 @@ class Predictor(BasePredictor):
             self.pipeline.safety_checker = disabled_safety_checker
             control_image = self.processor(init_image, hand_and_face=True)
             # control_image2 = self.processor2(init_image, scribble=True)
-            self.pipeline._lora_scale = float(lora_scale)
+            # self.pipeline._lora_scale = float(lora_scale)
             image = self.pipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   image=init_image,
