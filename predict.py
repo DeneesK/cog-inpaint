@@ -44,7 +44,7 @@ class Predictor(BasePredictor):
             )
         self.pipeline: StableDiffusionControlNetInpaintPipeline = \
             StableDiffusionControlNetInpaintPipeline.from_single_file(
-                "patsanchique/uberRealisticPornMerge_urpmv13Inpainting/uberRealisticPornMerge_urpmv13Inpainting.safetensors",
+                "https://huggingface.co/patsanchique/uberRealisticPornMerge_urpmv13Inpainting/blob/main/uberRealisticPornMerge_urpmv13Inpainting.safetensors",
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
