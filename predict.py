@@ -11,7 +11,7 @@ import torch  # noqa
 import numpy as np
 
 from PIL import Image  # noqa
-from diffusers.utils import load_image,  make_image_grid  # noqa
+from diffusers.utils import load_image  # noqa
 from mask_gen import generate_mask
 
 
