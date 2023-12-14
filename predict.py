@@ -60,16 +60,16 @@ class Predictor(BasePredictor):
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt", default='nsfw, nude, breast, pussy, 4k, masterpiece, sexy, seductive'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck'),
+                                     default='((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
         seed: int = Input(description="input seed",
-                          default=0),
+                          default=12412123124),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
             default=31
             ),
         guidance_scale: int = Input(
             description="input guidance_scale",
-            default=7
+            default=5
         ),
         strength: float = Input(
             description="input strength",
@@ -93,7 +93,7 @@ class Predictor(BasePredictor):
             ),
         mask_strength: float = Input(
             description="---В прошлый раз было 0.04, дефолт был 0.25---",
-            default=0.04
+            default=0.15
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -136,11 +136,11 @@ class Predictor(BasePredictor):
                                       "scale": float(lora_scale)
                                     }
                                   ).images[0]
-            image = make_image_grid([
-                                     image, mask_image.resize((w, h)),
-                                     control_image.resize((w, h))
-                                     ],
-                                    rows=1, cols=3)
+            # image = make_image_grid([
+            #                          image, mask_image.resize((w, h)),
+            #                          control_image.resize((w, h))
+            #                          ],
+            #                         rows=1, cols=3)
             image.save(out_path)
             print(image)
             return out_path
