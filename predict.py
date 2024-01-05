@@ -52,7 +52,7 @@ class Predictor(BasePredictor):
                 ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
-        self.pipeline.load_textual_inversion('gsdf/EasyNegative')
+        self.pipeline.load_textual_inversion('./BadDream.pt')
         self.pipeline.enable_model_cpu_offload()
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
@@ -61,7 +61,7 @@ class Predictor(BasePredictor):
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt", default='nsfw, nude, breast, pussy, 4k, masterpiece, sexy, seductive'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='(low quality, worst quality:1.4), (bad anatomy), (inaccurate limb:1.2),bad composition, inaccurate eyes, extra digit,fewer digits,(extra arms:1.2), ((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
+                                     default='BadDream, (UnrealisticDream:1.2), (bad anatomy), (inaccurate limb:1.2),bad composition, inaccurate eyes, extra digit,fewer digits,(extra arms:1.2), ((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
         seed: int = Input(description="input seed",
                           default=12412123124),
         num_inference_steps: int = Input(
