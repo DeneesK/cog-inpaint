@@ -112,7 +112,7 @@ class Predictor(BasePredictor):
                           strength=mask_strength)
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
-            sum_masks(out_path)
+            sum_masks(str(image), out_path)
             new_mask = load_image(str(out_path)).resize(init_image.size)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()

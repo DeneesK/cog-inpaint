@@ -150,13 +150,13 @@ def generate_mask(image: Image, path: str, mask_index: str = '', strength: float
         return None
 
 
-def sum_masks(origin: str):
+def sum_masks(origin: str, mask: str):
     generate_mask(origin, 'hair.png', mask_index='1', inv=True, strength=0.07)
     generate_mask(origin, 'face.png', mask_index='3', inv=True, strength=0.07)
     removeBackground('face.png', 'r1.png')
     removeBackground('hair.png', 'r2.png')
-    watermark_with_transparency(origin, 'r1.png')
-    watermark_with_transparency(origin, 'r2.png')
+    watermark_with_transparency(mask, 'r1.png')
+    watermark_with_transparency(mask, 'r2.png')
 
 
 if __name__ == '__main__':
