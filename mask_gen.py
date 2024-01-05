@@ -156,7 +156,7 @@ def sum_masks(origin: str, mask: str):
     removeBackground('face.png', 'r1.png')
     # removeBackground('hair.png', 'r2.png')
     watermark_with_transparency(mask, 'r1.png')
-    watermark_with_transparency(mask, 'r2.png')
+    # watermark_with_transparency(mask, 'r2.png')
 
 
 if __name__ == '__main__':
