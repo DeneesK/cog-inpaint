@@ -1,10 +1,15 @@
 from functools import reduce
 import cv2
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 import wget
 import numpy as np
 import mediapipe as mp
+
+from rembg.bg import remove
+import numpy as np
+import io
+from PIL import Image
 
 
 BaseOptions = mp.tasks.BaseOptions
@@ -17,6 +22,36 @@ MASK_OPTION_1_HAIR = 'hair'
 MASK_OPTION_2_BODY = 'body (skin)'
 MASK_OPTION_3_FACE = 'face (skin)'
 MASK_OPTION_4_CLOTHES = 'clothes'
+
+
+def watermark_with_transparency(input_image_path,
+                                watermark_image_path,
+                                position=(0, 0)):
+    base_image = Image.open(input_image_path).convert('RGBA')
+    watermark = Image.open(watermark_image_path).convert('RGBA')
+    width, height = base_image.size
+
+    transparent = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    transparent.paste(base_image, (0, 0))
+    transparent.paste(watermark, position, mask=watermark)
+    transparent.save(input_image_path)
+
+
+def removeBackground(file, savePath):
+
+    img = cv2.imread(file)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    mask = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY)[1]
+    mask = 255 - mask
+    kernel = np.ones((3,3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.GaussianBlur(mask, (0,0), sigmaX=2, sigmaY=2, borderType = cv2.BORDER_DEFAULT)
+    mask = (2*(mask.astype(np.float32))-255.0).clip(0,255).astype(np.uint8)
+    result = img.copy()
+    result = cv2.cvtColor(result, cv2.COLOR_BGR2BGRA)
+    result[:, :, 3] = mask
+    cv2.imwrite(savePath, result)
 
 
 def get_mediapipe_image(image: Image) -> mp.Image:
@@ -36,7 +71,7 @@ def get_mediapipe_image(image: Image) -> mp.Image:
     return mp.Image(image_format=image_format, data=numpy_image)
 
 
-def generate_mask(image: Image, path: str, mask_index: str = '', strength: float = 0.04):  # noqa
+def generate_mask(image: Image, path: str, mask_index: str = '', strength: float = 0.15, inv = False):  # noqa
     if image is not None:
         image = Image.open(image)
         model_folder_path = os.path.join('models', 'mediapipe')
@@ -83,12 +118,18 @@ def generate_mask(image: Image, path: str, mask_index: str = '', strength: float
             # to "rgba" aka add the alpha channel
             if image_shape[-1] == 3:
                 image_shape = (image_shape[0], image_shape[1], 4)
+            if inv:
+                mask_background_array = np.zeros(image_shape, dtype=np.uint8)
+                mask_background_array[:] = (255, 255, 255, 255)
 
-            mask_background_array = np.zeros(image_shape, dtype=np.uint8)
-            mask_background_array[:] = (0, 0, 0, 255)
+                mask_foreground_array = np.zeros(image_shape, dtype=np.uint8)
+                mask_foreground_array[:] = (0, 0, 0, 255)
+            else:
+                mask_background_array = np.zeros(image_shape, dtype=np.uint8)
+                mask_background_array[:] = (0, 0, 0, 255)
 
-            mask_foreground_array = np.zeros(image_shape, dtype=np.uint8)
-            mask_foreground_array[:] = (255, 255, 255, 255)
+                mask_foreground_array = np.zeros(image_shape, dtype=np.uint8)
+                mask_foreground_array[:] = (255, 255, 255, 255)
 
             mask_arrays = []
             for i, mask in enumerate(masks):
@@ -111,6 +152,20 @@ def generate_mask(image: Image, path: str, mask_index: str = '', strength: float
         return None
 
 
+def sum_masks(origin: str):
+    generate_mask(origin, 'hair.png', mask_index='1', inv=True, strength=0.07)
+    generate_mask(origin, 'face.png', mask_index='3', inv=True, strength=0.07)
+    removeBackground('face.png', 'r1.png')
+    removeBackground('hair.png', 'r2.png')
+    watermark_with_transparency(origin, 'r1.png')
+    watermark_with_transparency(origin, 'r2.png')
+
+
 if __name__ == '__main__':
-    print('Starting')
-    image = generate_mask('test.jpg', 'result.png')
+    generate_mask('test.jpg', 'result.png', inv=False, strength=0.04)
+    generate_mask('test.jpg', 'hair.png', mask_index='1', inv=True, strength=0.07)
+    generate_mask('test.jpg', 'face.png', mask_index='3', inv=True, strength=0.07)
+    removeBackground('face.png', 'r1.png')
+    removeBackground('hair.png', 'r2.png')
+    watermark_with_transparency('result.png', 'r1.png')
+    watermark_with_transparency('result.png', 'r2.png')

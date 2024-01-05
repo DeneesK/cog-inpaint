@@ -11,8 +11,8 @@ import torch  # noqa
 import numpy as np
 
 from PIL import Image  # noqa
-from diffusers.utils import load_image  # noqa
-from mask_gen import generate_mask
+from diffusers.utils import load_image, make_image_grid  # noqa
+from mask_gen import generate_mask, sum_masks
 
 
 def disabled_safety_checker(images, clip_input):
@@ -93,7 +93,7 @@ class Predictor(BasePredictor):
             ),
         mask_strength: float = Input(
             description="---В прошлый раз было 0.04, дефолт был 0.25---",
-            default=0.15
+            default=0.04
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -112,7 +112,8 @@ class Predictor(BasePredictor):
                           strength=mask_strength)
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
-
+            sum_masks(out_path)
+            new_mask = load_image(str(out_path)).resize(init_image.size)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
@@ -121,26 +122,27 @@ class Predictor(BasePredictor):
                 init_image,
                 hand_and_face=True
                 ).resize(init_image.size)
-            image = self.pipeline(prompt=prompt,
-                                  negative_prompt=negative_prompt,
-                                  image=init_image,
-                                  mask_image=mask_image,
-                                  control_image=control_image,
-                                  generator=generator,
-                                  num_inference_steps=int(num_inference_steps),
-                                  guidance_scale=int(guidance_scale),
-                                  strength=strength,
-                                  width=w,
-                                  height=h,
-                                  cross_attention_kwargs={
-                                      "scale": float(lora_scale)
-                                    }
-                                  ).images[0]
-            # image = make_image_grid([
-            #                          image, mask_image.resize((w, h)),
-            #                          control_image.resize((w, h))
-            #                          ],
-            #                         rows=1, cols=3)
+            image: Image = self.pipeline(prompt=prompt,
+                                         negative_prompt=negative_prompt,
+                                         image=init_image,
+                                         mask_image=new_mask,
+                                         control_image=control_image,
+                                         generator=generator,
+                                         num_inference_steps=int(num_inference_steps),  # noqa
+                                         guidance_scale=int(guidance_scale),
+                                         strength=strength,
+                                         width=w,
+                                         height=h,
+                                         cross_attention_kwargs={
+                                            "scale": float(lora_scale)
+                                            }
+                                         ).images[0]
+            image = make_image_grid([
+                                     image, mask_image.resize((w, h)),
+                                     new_mask.resize((w, h)),
+                                     control_image.resize((w, h))
+                                     ],
+                                    rows=1, cols=4)
             image.save(out_path)
             print(image)
             return out_path
@@ -149,9 +151,12 @@ class Predictor(BasePredictor):
             return str(ex)
 
 
-def resize_(image: Image) -> tuple[int, int]:
+def resize_(image) -> tuple[int, int]:
     w = image.width
     h = image.height
+
+    if w < 1025 and h < 1025:
+        return w, h
 
     if w > h:
         c = h / w
