@@ -1,14 +1,12 @@
 from functools import reduce
 import cv2
 import os
-from PIL import Image, ImageOps
+from PIL import Image
 import wget
 import numpy as np
 import mediapipe as mp
 
-from rembg.bg import remove
 import numpy as np
-import io
 from PIL import Image
 
 
