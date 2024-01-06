@@ -23,14 +23,14 @@ def disabled_safety_checker(images, clip_input):
         return images, False
 
 
-# def make_inpaint_condition(image, image_mask):
-#     image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
-#     image_mask = np.array(image_mask.convert("L")).astype(np.float32) / 255.0
-#     assert image.shape[0:1] == image_mask.shape[0:1], "image and image_mask must have the same image size"
-#     image[image_mask > 0.5] = -1.0  # set as masked pixel
-#     image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
-#     image = torch.from_numpy(image)
-#     return image
+def make_inpaint_condition(image, image_mask):
+    image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
+    image_mask = np.array(image_mask.convert("L")).astype(np.float32) / 255.0
+    assert image.shape[0:1] == image_mask.shape[0:1], "image and image_mask must have the same image size"
+    image[image_mask > 0.5] = -1.0  # set as masked pixel
+    image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
+    image = torch.from_numpy(image)
+    return image
 
 
 class Predictor(BasePredictor):
@@ -40,6 +40,10 @@ class Predictor(BasePredictor):
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",
                                             torch_dtype=torch.float16)
+        controlnet = ControlNetModel.from_pretrained(
+                    "lllyasviel/control_v11p_sd15_inpaint",
+                    torch_dtype=torch.float16
+            )
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
@@ -50,7 +54,7 @@ class Predictor(BasePredictor):
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
-                controlnet=controlnet1,
+                controlnet=[controlnet, controlnet1],
                 vae=vae
                 ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
@@ -66,7 +70,7 @@ class Predictor(BasePredictor):
         negative_prompt: str = Input(description="input negative_prompt",
                                      default='BadDream, (UnrealisticDream:1.2), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits,(extra arms:1.2), ((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
         seed: int = Input(description="input seed",
-                          default=12412123124),
+                          default=0),
         num_inference_steps: int = Input(
             description="input num_inference_steps",
             default=31
@@ -118,11 +122,12 @@ class Predictor(BasePredictor):
             mask_image = load_image(str(out_path)).resize(init_image.size)
             sum_masks(str(image), out_path)
             new_mask = load_image(str(out_path)).resize(init_image.size)
+            control_image = make_inpaint_condition(init_image, mask_image)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             self.pipeline.safety_checker = disabled_safety_checker
-            control_image = self.processor(
+            control_image2 = self.processor(
                 init_image,
                 hand_and_face=True
                 ).resize(init_image.size)
@@ -130,7 +135,8 @@ class Predictor(BasePredictor):
                                          negative_prompt=negative_prompt,
                                          image=init_image,
                                          mask_image=new_mask,
-                                         control_image=control_image,
+                                         control_image=[control_image,
+                                                        control_image2],
                                          generator=generator,
                                          num_inference_steps=int(num_inference_steps),  # noqa
                                          guidance_scale=int(guidance_scale),
@@ -144,7 +150,7 @@ class Predictor(BasePredictor):
             image = make_image_grid([
                                      image, mask_image.resize((w, h)),
                                      new_mask.resize((w, h)),
-                                     control_image.resize((w, h))
+                                     control_image2.resize((w, h))
                                      ],
                                     rows=1, cols=4)
             image.save(out_path)
