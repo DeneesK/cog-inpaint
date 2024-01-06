@@ -131,7 +131,7 @@ class Predictor(BasePredictor):
             control_image2 = self.processor(
                 init_image,
                 hand_and_face=True
-                ).resize(init_image.size)
+                ).resize((w, h))
             image: Image = self.pipeline(prompt=prompt,
                                          negative_prompt=negative_prompt,
                                          image=init_image,
