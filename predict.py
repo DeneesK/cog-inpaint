@@ -38,7 +38,8 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse")
+        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",
+                                            torch_dtype=torch.float16)
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
