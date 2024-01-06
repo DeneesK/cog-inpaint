@@ -100,8 +100,12 @@ class Predictor(BasePredictor):
             default='2,4'
             ),
         mask_strength: float = Input(
-            description="---В прошлый раз было 0.04, дефолт был 0.25---",
+            description="---origin 0.25---",
             default=0.09
+        ),
+        face_inver: float = Input(
+            description="face mask inv",
+            default=0.07
         )
     ) -> Path:
         """Run a single prediction on the model"""
@@ -121,7 +125,7 @@ class Predictor(BasePredictor):
                           strength=mask_strength)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             mask_image = load_image(str(out_path)).resize((w, h))
-            sum_masks(str(image), out_path)
+            sum_masks(str(image), out_path, face_inver)
             new_mask = load_image(str(out_path)).resize((w, h))
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             control_image = make_inpaint_condition(init_image, new_mask)
