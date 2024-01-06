@@ -101,7 +101,7 @@ class Predictor(BasePredictor):
             ),
         mask_strength: float = Input(
             description="---В прошлый раз было 0.04, дефолт был 0.25---",
-            default=0.05
+            default=0.09
         )
     ) -> Path:
         """Run a single prediction on the model"""
