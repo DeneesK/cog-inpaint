@@ -64,7 +64,7 @@ class Predictor(BasePredictor):
         image: Path = Input(description="input image"),
         prompt: str = Input(description="input prompt", default='nsfw, nude, breast, pussy, 4k, masterpiece, sexy, seductive'),
         negative_prompt: str = Input(description="input negative_prompt",
-                                     default='BadDream, (UnrealisticDream:1.2), (bad anatomy), (inaccurate limb:1.2),bad composition, inaccurate eyes, extra digit,fewer digits,(extra arms:1.2), ((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
+                                     default='BadDream, (UnrealisticDream:1.2), (bad anatomy), (inaccurate limb:1.2), bad composition, inaccurate eyes, extra digit,fewer digits,(extra arms:1.2), ((((clothes)), lingerie, underwear, brassiere, hair, hairy genitals))'),
         seed: int = Input(description="input seed",
                           default=12412123124),
         num_inference_steps: int = Input(
@@ -97,7 +97,7 @@ class Predictor(BasePredictor):
             ),
         mask_strength: float = Input(
             description="---В прошлый раз было 0.04, дефолт был 0.25---",
-            default=0.04
+            default=0.05
         )
     ) -> Path:
         """Run a single prediction on the model"""
