@@ -139,6 +139,7 @@ class Predictor(BasePredictor):
                                          control_image=[control_image,
                                                         control_image2],
                                          generator=generator,
+                                         eta=1.0,
                                          num_inference_steps=int(num_inference_steps),  # noqa
                                          guidance_scale=int(guidance_scale),
                                          strength=strength,
