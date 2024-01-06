@@ -111,19 +111,20 @@ class Predictor(BasePredictor):
                 seed = random.randint(0, 99999)
             init_image = load_image(str(image))
             w, h = resize_(init_image)
-
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            init_image = init_image.resize((w, h))
             out_path = Path(tempfile.mkdtemp()) / "output.png"
 
             generate_mask(image=str(image),
                           path=str(out_path),
                           mask_index=mask,
                           strength=mask_strength)
-
-            mask_image = load_image(str(out_path)).resize(init_image.size)
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            mask_image = load_image(str(out_path)).resize((w, h))
             sum_masks(str(image), out_path)
             new_mask = load_image(str(out_path)).resize((w, h))
-            control_image = make_inpaint_condition(init_image, mask_image).resize((w, h))
-            init_image = init_image.resize((w, h))
+            print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            control_image = make_inpaint_condition(init_image, new_mask)
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
@@ -131,7 +132,7 @@ class Predictor(BasePredictor):
             control_image2 = self.processor(
                 init_image,
                 hand_and_face=True
-                ).resize((w, h))
+                )
             image: Image = self.pipeline(prompt=prompt,
                                          negative_prompt=negative_prompt,
                                          image=init_image,
@@ -150,9 +151,9 @@ class Predictor(BasePredictor):
                                             }
                                          ).images[0]
             image = make_image_grid([
-                                     image, mask_image.resize((w, h)),
-                                     new_mask.resize((w, h)),
-                                     control_image2.resize((w, h))
+                                     image, mask_image,
+                                     new_mask,
+                                     control_image2
                                      ],
                                     rows=1, cols=4)
             image.save(out_path)
