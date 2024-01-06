@@ -101,7 +101,7 @@ class Predictor(BasePredictor):
             ),
         mask_strength: float = Input(
             description="---origin 0.25---",
-            default=0.09
+            default=0.04
         ),
         face_inver: float = Input(
             description="face mask inv",
