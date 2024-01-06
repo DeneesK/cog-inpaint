@@ -38,6 +38,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make
         running multiple predictions efficient"""
         print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse")
         controlnet1 = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_openpose",
             torch_dtype=torch.float16
@@ -48,7 +49,8 @@ class Predictor(BasePredictor):
                 use_safetensors=True,
                 torch_dtype=torch.float16,
                 requires_safety_checker=False,
-                controlnet=controlnet1
+                controlnet=controlnet1,
+                vae=vae
                 ).to("cuda")
         self.processor = OpenposeDetector.from_pretrained('lllyasviel/ControlNet')
         self.pipeline.load_lora_weights('./', weight_name='NSFW_Realism_Stable-09.safetensors')
