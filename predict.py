@@ -121,8 +121,9 @@ class Predictor(BasePredictor):
 
             mask_image = load_image(str(out_path)).resize(init_image.size)
             sum_masks(str(image), out_path)
-            new_mask = load_image(str(out_path)).resize(init_image.size)
-            control_image = make_inpaint_condition(init_image, mask_image)
+            new_mask = load_image(str(out_path)).resize((w, h))
+            control_image = make_inpaint_condition(init_image, mask_image).resize((w, h))
+            init_image = init_image.resize((w, h))
             generator = torch.Generator("cuda").manual_seed(seed)
             torch.cuda.empty_cache()
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
