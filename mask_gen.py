@@ -160,10 +160,10 @@ def sum_masks(origin: str, mask: str, inver: float):
 
 
 if __name__ == '__main__':
-    generate_mask('test.jpg', 'result.png', inv=False, strength=0.04)
-    generate_mask('test.jpg', 'hair.png', mask_index='1', inv=True, strength=0.07)
-    generate_mask('test.jpg', 'face.png', mask_index='3', inv=True, strength=0.07)
+    generate_mask('test.jpg', mask_index='0', path='result.png', inv=True, strength=0.91)
+    # generate_mask('test.jpg', 'hair.png', mask_index='1', inv=True, strength=0.07)
+    generate_mask('test.jpg', 'face.png', mask_index='3', inv=True, strength=0.08)
     removeBackground('face.png', 'r1.png')
-    removeBackground('hair.png', 'r2.png')
+    # removeBackground('hair.png', 'r2.png')
     watermark_with_transparency('result.png', 'r1.png')
-    watermark_with_transparency('result.png', 'r2.png')
+    # watermark_with_transparency('result.png', 'r2.png')

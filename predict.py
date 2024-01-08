@@ -97,11 +97,11 @@ class Predictor(BasePredictor):
             # 4 - clothes
             # 5 - others(accessories)
             """,
-            default='2,4'
+            default='0'
             ),
         mask_strength: float = Input(
             description="---origin 0.25---",
-            default=0.04
+            default=0.9
         ),
         face_inver: float = Input(
             description="face mask inv",
@@ -122,7 +122,8 @@ class Predictor(BasePredictor):
             generate_mask(image=str(image),
                           path=str(out_path),
                           mask_index=mask,
-                          strength=mask_strength)
+                          strength=mask_strength,
+                          inv=True)
             print('-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             mask_image = load_image(str(out_path)).resize((w, h))
             sum_masks(str(image), out_path, face_inver)
